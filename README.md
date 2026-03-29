@@ -103,11 +103,15 @@ The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
+## Credits
+
+Based on [Miniontoby/RokidApkUploader](https://github.com/Miniontoby/RokidApkUploader) — the original APK uploader for Rokid glasses. This fork rewrites the connection flow for the newer CXR-M SDK and adds a redesigned UI.
+
+---
+
 ## Notes
 
 - The repo ignores `local.properties`, `.lc` auth blobs, build outputs, and keystores so they do not end up in Git by accident.
 - The Wi-Fi Direct path resets stale P2P state before reconnecting, which helps on Samsung devices that keep broken persistent groups around.
 - This project has been build-verified locally and tested on real Rokid glasses, but the exact pairing behavior can still vary by phone vendor and firmware.
-
-
 
