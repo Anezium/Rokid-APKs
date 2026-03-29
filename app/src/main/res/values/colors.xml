@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phosphor Green design system (aligned with Rokid-Lyrics) -->
+    <color name="phosphor_bg">#050A05</color>
+    <color name="phosphor_primary">#39FF14</color>
+    <color name="phosphor_mid">#22C20A</color>
+    <color name="phosphor_dim">#1A8A1A</color>
+    <color name="phosphor_card_bg">#0A1A0A</color>
+    <color name="phosphor_text_bright">#D4FFD4</color>
+    <color name="phosphor_text_mid">#4E8A4E</color>
+    <color name="phosphor_text_ghost">#1C351C</color>
+    <color name="phosphor_divider">#112211</color>
+    <color name="phosphor_separator">#1A2A1A</color>
+    <color name="phosphor_error">#8A2A1A</color>
+    <color name="phosphor_warning">#8A6A1A</color>
+
+    <!-- Inline accents -->
+    <color name="phosphor_stroke">#253525</color>
+    <color name="phosphor_badge_bg">#0D230D</color>
+    <color name="phosphor_badge_stroke">#2D602D</color>
+    <color name="phosphor_pressed">#0D2A0D</color>
+    <color name="phosphor_progress_track">#0D2A0D</color>
+</resources>

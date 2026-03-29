@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/phosphor_bg">
+
+    <!-- ── HEADER ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="52dp"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:paddingBottom="14dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/header_title"
+            android:textColor="@color/phosphor_primary"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <View
+            android:id="@+id/viewStatusDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/shape_status_dot" />
+
+        <TextView
+            android:id="@+id/tvHeaderStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:text="@string/ready"
+            android:textColor="@color/phosphor_dim"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.12" />
+    </LinearLayout>
+
+    <!-- ── CONFIG CARD ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:background="@drawable/bg_card"
+        android:padding="14dp">
+
+        <!-- Serial row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_serial"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"
+                android:background="@drawable/bg_badge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/serialInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_serial"
+            android:textColor="@color/phosphor_text_bright"
+            android:textColorHint="@color/phosphor_text_ghost"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:background="@drawable/bg_input"
+            android:padding="10dp"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/phosphor_divider" />
+
+        <!-- APK row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_apk"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"
+                android:background="@drawable/bg_badge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/selectFileButton"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="@string/select_apk"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.14"
+                android:background="@drawable/btn_outline_green"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:stateListAnimator="@null"
+                android:textAllCaps="false"
+                android:minWidth="0dp"
+                android:minHeight="0dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/filePathText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/no_file_selected"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/phosphor_divider" />
+
+        <!-- Device row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_device"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"
+                android:background="@drawable/bg_badge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/scanDevicesButton"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="@string/scan"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.14"
+                android:background="@drawable/btn_outline_green"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:stateListAnimator="@null"
+                android:textAllCaps="false"
+                android:minWidth="0dp"
+                android:minHeight="0dp" />
+        </LinearLayout>
+
+        <!-- Device text (shown when 0-1 devices) -->
+        <TextView
+            android:id="@+id/deviceText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/no_device_found"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <!-- Spinner (shown when >1 devices) -->
+        <Spinner
+            android:id="@+id/deviceSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_spinner"
+            android:popupBackground="@color/phosphor_card_bg"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- ── MISSION DIVIDER ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="18dp"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:gravity="center_vertical">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/phosphor_divider" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="◈ MISSION ◈"
+            android:textColor="@color/phosphor_divider"
+            android:textSize="9sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.3"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/phosphor_divider" />
+    </LinearLayout>
+
+    <!-- ── PHASE STRIP ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp">
+
+        <TextView
+            android:id="@+id/phaseBle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ BLE"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/phaseAuth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ AUTH"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/phaseP2p"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ P2P"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/phaseUpload"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ UP"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/phaseInstall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ OK"
+            android:textColor="@color/phosphor_text_ghost"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- ── TERMINAL LOG ── -->
+    <ScrollView
+        android:id="@+id/logScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_log"
+        android:padding="12dp"
+        android:fadeScrollbars="true"
+        android:scrollbarThumbVertical="@color/phosphor_divider">
+
+        <TextView
+            android:id="@+id/logText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/log_waiting"
+            android:textColor="@color/phosphor_text_mid"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:lineSpacingExtra="4dp" />
+    </ScrollView>
+
+    <!-- ── SEPARATOR ── -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/phosphor_divider" />
+
+    <!-- ── UPLOAD BUTTON ── -->
+    <Button
+        android:id="@+id/uploadButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:layout_marginTop="12dp"
+        android:text="@string/upload_apk"
+        android:textColor="#050A05"
+        android:textSize="11sp"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.14"
+        android:textStyle="bold"
+        android:background="@drawable/btn_primary_green"
+        android:paddingTop="13dp"
+        android:paddingBottom="13dp"
+        android:gravity="center"
+        android:stateListAnimator="@null"
+        android:textAllCaps="false" />
+
+    <!-- ── STATUS BAR ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="24dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvStatusState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ready"
+            android:textColor="@color/phosphor_primary"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" │ "
+            android:textColor="@color/phosphor_separator"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/tvStatusBt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BT: OFF"
+            android:textColor="@color/phosphor_dim"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" │ "
+            android:textColor="@color/phosphor_separator"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/tvStatusDevices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 DEV"
+            android:textColor="@color/phosphor_dim"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="v1.0.2"
+            android:textColor="@color/phosphor_divider"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+    </LinearLayout>
+
+</LinearLayout>

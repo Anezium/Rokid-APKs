@@ -1,0 +1,6 @@
+# Copy the values you need into local.properties.
+# local.properties is intentionally gitignored and should stay local to your machine.
+
+sdk.dir=C\:\\Path\\To\\Android\\Sdk
+rokid.clientSecret=replace-with-your-rokid-client-secret
+rokid.authBlobName=replace-with-your-auth-blob-name-without-extension

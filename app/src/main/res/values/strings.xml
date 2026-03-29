@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Rokid-APKs</string>
+    <string name="header_title">[ ROKID-APKS ]</string>
+    <string name="label_serial">SERIAL</string>
+    <string name="hint_serial">Glasses serial number (optional)</string>
+    <string name="label_apk">APK FILE</string>
+    <string name="label_device">DEVICE</string>
+    <string name="no_file_selected">No file selected</string>
+    <string name="select_apk">[ SELECT ]</string>
+    <string name="scan">[ SCAN ]</string>
+    <string name="upload_apk">[ UPLOAD APK ]</string>
+    <string name="cancel_upload">[ CANCEL ]</string>
+    <string name="ready">READY</string>
+    <string name="busy">BUSY</string>
+    <string name="permission_needed">Grant Bluetooth, location, and Wi-Fi permissions to continue.</string>
+    <string name="select_device">Select a detected glasses device.</string>
+    <string name="select_apk_first">Choose an APK first.</string>
+    <string name="enable_bluetooth">Enable Bluetooth to continue.</string>
+    <string name="apk_selected">APK selected.</string>
+    <string name="no_device_found">No device found</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="bluetooth_pair_prompt">If Android shows a Bluetooth PIN prompt, accept it on the phone and the glasses.</string>
+    <string name="bluetooth_connect_timeout">Bluetooth pairing timed out. Disconnect the glasses from Android Bluetooth settings, trigger Rokid pairing mode, then retry.</string>
+    <string name="log_waiting">&gt; Waiting for command…</string>
+    <string name="phase_ble">BLE</string>
+    <string name="phase_auth">AUTH</string>
+    <string name="phase_p2p">P2P</string>
+    <string name="phase_upload">UP</string>
+    <string name="phase_install">OK</string>
+    <string name="divider_mission">MISSION</string>
+</resources>
