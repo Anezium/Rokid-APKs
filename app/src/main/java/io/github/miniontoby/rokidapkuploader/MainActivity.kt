@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -28,6 +29,14 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    private enum class TransportMode {
+        CXR,
+        SPP_SLOW,
+        WIFI_LAN,
+    }
+
+    private lateinit var transportSpinner: Spinner
+    private lateinit var modeHintText: TextView
     private lateinit var serialInput: EditText
     private lateinit var filePathText: TextView
     private lateinit var deviceText: TextView
@@ -41,10 +50,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvStatusState: TextView
     private lateinit var tvStatusBt: TextView
     private lateinit var tvStatusDevices: TextView
-    private lateinit var session: RokidInstallerSession
+    private lateinit var rokidSession: RokidInstallerSession
+    private lateinit var sppSlowSession: SppSlowUploadSession
+    private lateinit var wifiLanSession: WifiLanUploadSession
 
     private lateinit var phaseViews: List<TextView>
-    private val phaseLabels = listOf("BLE", "AUTH", "P2P", "UP", "OK")
+    private var phaseLabels = listOf("WAIT", "LINK", "LAN", "INST", "OK")
+    private var currentMode = TransportMode.WIFI_LAN
 
     private var selectedApkUri: Uri? = null
     private var discoveredDevices: List<BluetoothDevice> = emptyList()
@@ -56,21 +68,25 @@ class MainActivity : AppCompatActivity() {
 
     private val requiredPermissions: Array<String>
         get() = buildList {
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
             add(Manifest.permission.BLUETOOTH)
             add(Manifest.permission.BLUETOOTH_ADMIN)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                add(Manifest.permission.BLUETOOTH_SCAN)
                 add(Manifest.permission.BLUETOOTH_CONNECT)
+                if (currentMode == TransportMode.CXR) {
+                    add(Manifest.permission.BLUETOOTH_SCAN)
+                }
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.NEARBY_WIFI_DEVICES)
+            if (currentMode == TransportMode.CXR) {
+                add(Manifest.permission.ACCESS_FINE_LOCATION)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    add(Manifest.permission.NEARBY_WIFI_DEVICES)
+                }
             }
         }.toTypedArray()
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
-            val allGranted = requiredPermissions.all { permission -> grants[permission] == true }
+            val allGranted = requiredPermissions.all { permission -> grants[permission] == true || hasPermission(permission) }
             if (allGranted) {
                 consumePendingAction()
             } else {
@@ -101,6 +117,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        transportSpinner = findViewById(R.id.transportSpinner)
+        modeHintText = findViewById(R.id.modeHintText)
         serialInput = findViewById(R.id.serialInput)
         filePathText = findViewById(R.id.filePathText)
         deviceText = findViewById(R.id.deviceText)
@@ -129,12 +147,24 @@ class MainActivity : AppCompatActivity() {
             repeatCount = ValueAnimator.INFINITE
         }
 
-        session = RokidInstallerSession(
+        rokidSession = RokidInstallerSession(
             activity = this,
             onStatus = ::updateStatus,
             onDevicesChanged = ::updateDevices,
-            onBusyChanged = ::setBusy
+            onBusyChanged = ::setBusy,
         )
+        sppSlowSession = SppSlowUploadSession(
+            activity = this,
+            onStatus = ::updateStatus,
+            onBusyChanged = ::setBusy,
+        )
+        wifiLanSession = WifiLanUploadSession(
+            activity = this,
+            onStatus = ::updateStatus,
+            onBusyChanged = ::setBusy,
+        )
+
+        setupTransportSpinner()
 
         findViewById<Button>(R.id.selectFileButton).setOnClickListener {
             apkPicker.launch("application/vnd.android.package-archive")
@@ -142,48 +172,136 @@ class MainActivity : AppCompatActivity() {
 
         scanDevicesButton.setOnClickListener {
             runWithPrerequisites {
-                session.startScan()
+                rokidSession.startScan()
             }
         }
 
         uploadButton.setOnClickListener {
             runWithPrerequisites {
                 val apkUri = selectedApkUri
-                val device = currentSelectedDevice()
-                when {
-                    apkUri == null -> {
-                        Toast.makeText(this, R.string.select_apk_first, Toast.LENGTH_SHORT).show()
-                        appendLog(getString(R.string.select_apk_first))
+                if (apkUri == null) {
+                    Toast.makeText(this, R.string.select_apk_first, Toast.LENGTH_SHORT).show()
+                    appendLog(getString(R.string.select_apk_first))
+                    return@runWithPrerequisites
+                }
+
+                when (currentMode) {
+                    TransportMode.SPP_SLOW -> {
+                        sppSlowSession.sendApk(apkUri)
                     }
 
-                    device == null && !session.hasSavedBluetoothEndpoint() -> {
-                        Toast.makeText(this, R.string.select_device, Toast.LENGTH_SHORT).show()
-                        appendLog(getString(R.string.select_device))
+                    TransportMode.WIFI_LAN -> {
+                        wifiLanSession.sendApk(apkUri)
                     }
 
-                    else -> {
-                        val serialNumber = serialInput.text?.toString()?.trim().orEmpty()
-                        session.installApk(
-                            device = device,
-                            apkUri = apkUri,
-                            serialNumber = serialNumber.ifBlank { null }
-                        )
+                    TransportMode.CXR -> {
+                        val device = currentSelectedDevice()
+                        when {
+                            device == null && !rokidSession.hasSavedBluetoothEndpoint() -> {
+                                Toast.makeText(this, R.string.select_device, Toast.LENGTH_SHORT).show()
+                                appendLog(getString(R.string.select_device))
+                            }
+
+                            else -> {
+                                val serialNumber = serialInput.text?.toString()?.trim().orEmpty()
+                                rokidSession.installApk(
+                                    device = device,
+                                    apkUri = apkUri,
+                                    serialNumber = serialNumber.ifBlank { null },
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
 
         updateDevices(emptyList())
+        refreshModeUi()
         refreshStatusBar()
     }
 
     override fun onDestroy() {
         dotPulseAnimator?.cancel()
-        session.cleanup()
+        rokidSession.cleanup()
+        sppSlowSession.cleanup()
+        wifiLanSession.cleanup()
         super.onDestroy()
     }
 
-    // ── Status & logging ──
+    private fun setupTransportSpinner() {
+        val labels = listOf(
+            getString(R.string.transport_mode_cxr),
+            getString(R.string.transport_mode_spp_slow),
+            getString(R.string.transport_mode_wifi_lan),
+        )
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, labels)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        transportSpinner.adapter = adapter
+        transportSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long,
+            ) {
+                currentMode = when (position) {
+                    0 -> TransportMode.CXR
+                    1 -> TransportMode.SPP_SLOW
+                    else -> TransportMode.WIFI_LAN
+                }
+                refreshModeUi()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
+        transportSpinner.setSelection(2)
+    }
+
+    private fun refreshModeUi() {
+        when (currentMode) {
+            TransportMode.CXR -> {
+                modeHintText.text = getString(R.string.transport_hint_cxr)
+                serialInput.isEnabled = true
+                serialInput.alpha = 1f
+                serialInput.hint = getString(R.string.hint_serial)
+                scanDevicesButton.visibility = View.VISIBLE
+                phaseLabels = listOf("BLE", "AUTH", "P2P", "UP", "OK")
+                updateDevices(discoveredDevices)
+            }
+
+            TransportMode.SPP_SLOW -> {
+                modeHintText.text = getString(R.string.transport_hint_spp_slow)
+                serialInput.setText("")
+                serialInput.isEnabled = false
+                serialInput.alpha = 0.55f
+                serialInput.hint = getString(R.string.hint_serial_unused_companion)
+                scanDevicesButton.visibility = View.GONE
+                deviceSpinner.visibility = View.GONE
+                deviceText.visibility = View.VISIBLE
+                deviceText.text = getString(R.string.device_hint_spp_slow)
+                deviceText.setTextColor(ContextCompat.getColor(this, R.color.phosphor_text_mid))
+                phaseLabels = listOf("WAIT", "LINK", "SEND", "INST", "OK")
+            }
+
+            TransportMode.WIFI_LAN -> {
+                modeHintText.text = getString(R.string.transport_hint_wifi_lan)
+                serialInput.setText("")
+                serialInput.isEnabled = false
+                serialInput.alpha = 0.55f
+                serialInput.hint = getString(R.string.hint_serial_unused_companion)
+                scanDevicesButton.visibility = View.GONE
+                deviceSpinner.visibility = View.GONE
+                deviceText.visibility = View.VISIBLE
+                deviceText.text = getString(R.string.device_hint_wifi_lan)
+                deviceText.setTextColor(ContextCompat.getColor(this, R.color.phosphor_text_mid))
+                phaseLabels = listOf("WAIT", "LINK", "LAN", "INST", "OK")
+            }
+        }
+        resetPhases()
+        refreshStatusBar()
+        updatePrimaryButtonText()
+    }
 
     private fun updateStatus(status: String) {
         appendLog(status)
@@ -205,11 +323,11 @@ class MainActivity : AppCompatActivity() {
     private fun inferPhase(status: String) {
         val lower = status.lowercase()
         val phase = when {
-            lower.contains("install") && (lower.contains("success") || lower.contains("complete")) -> 4
-            lower.contains("upload") || lower.contains("uploading") -> 3
-            lower.contains("wi-fi") || lower.contains("wifi") || lower.contains("p2p") || lower.contains("peer") -> 2
-            lower.contains("bluetooth") || lower.contains("pair") || lower.contains("auth") || lower.contains("connect") -> 1
-            lower.contains("scan") || lower.contains("ble") || lower.contains("found") -> 0
+            lower.contains("install succeeded") || lower.contains("install success") || lower.contains("complete") -> 4
+            lower.contains("install prompt") || lower.contains("installer") || lower.contains("watch the glasses") || lower.contains("launching installer") -> 3
+            lower.contains("sending") || lower.contains("upload") || lower.contains("receiving apk") || lower.contains("transfer") || lower.contains("wi-fi lan is ready") -> 2
+            lower.contains("connected") || lower.contains("auth") || lower.contains("link") -> 1
+            lower.contains("scan") || lower.contains("ble") || lower.contains("listen") || lower.contains("waiting") || lower.contains("preparing") -> 0
             else -> return
         }
         if (phase >= currentPhase) {
@@ -231,11 +349,13 @@ class MainActivity : AppCompatActivity() {
                     phaseViews[i].setTextColor(primaryColor)
                     phaseViews[i].alpha = 1f
                 }
+
                 i == index -> {
                     phaseViews[i].text = "◐ $label"
                     phaseViews[i].setTextColor(midColor)
                     phaseViews[i].alpha = 1f
                 }
+
                 else -> {
                     phaseViews[i].text = "○ $label"
                     phaseViews[i].setTextColor(ghostColor)
@@ -254,12 +374,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── Busy state ──
-
     private fun setBusy(busy: Boolean) {
         isBusy = busy
         scanDevicesButton.isEnabled = !busy
         uploadButton.isEnabled = !busy
+        transportSpinner.isEnabled = !busy
 
         if (busy) {
             uploadButton.text = getString(R.string.cancel_upload)
@@ -270,16 +389,13 @@ class MainActivity : AppCompatActivity() {
             tvStatusState.setTextColor(ContextCompat.getColor(this, R.color.phosphor_mid))
             dotPulseAnimator?.start()
         } else {
-            uploadButton.text = getString(R.string.upload_apk)
-            uploadButton.setTextColor(resources.getColor(R.color.phosphor_bg, theme))
-            uploadButton.setBackgroundResource(R.drawable.btn_primary_green)
+            updatePrimaryButtonText()
             tvHeaderStatus.text = getString(R.string.ready)
             tvStatusState.text = getString(R.string.ready)
             tvStatusState.setTextColor(ContextCompat.getColor(this, R.color.phosphor_primary))
             dotPulseAnimator?.cancel()
             viewStatusDot.alpha = 1f
 
-            // Mark all completed phases as done if we finished successfully
             if (currentPhase == 4) {
                 val primaryColor = ContextCompat.getColor(this, R.color.phosphor_primary)
                 for (i in phaseViews.indices) {
@@ -294,10 +410,39 @@ class MainActivity : AppCompatActivity() {
         refreshStatusBar()
     }
 
-    // ── Devices ──
+    private fun updatePrimaryButtonText() {
+        if (isBusy) {
+            return
+        }
+        val buttonLabel = when (currentMode) {
+            TransportMode.CXR -> getString(R.string.upload_apk)
+            TransportMode.SPP_SLOW -> getString(R.string.send_apk_spp_slow)
+            TransportMode.WIFI_LAN -> getString(R.string.send_apk_wifi_lan)
+        }
+        uploadButton.text = buttonLabel
+        uploadButton.setTextColor(resources.getColor(R.color.phosphor_bg, theme))
+        uploadButton.setBackgroundResource(R.drawable.btn_primary_green)
+    }
 
     private fun updateDevices(devices: List<BluetoothDevice>) {
         discoveredDevices = devices
+        if (currentMode != TransportMode.CXR) {
+            tvStatusDevices.text = when (currentMode) {
+                TransportMode.SPP_SLOW -> "SPP"
+                TransportMode.WIFI_LAN -> "LAN"
+                TransportMode.CXR -> "${devices.size} DEV"
+            }
+            deviceSpinner.visibility = View.GONE
+            deviceText.visibility = View.VISIBLE
+            deviceText.text = when (currentMode) {
+                TransportMode.SPP_SLOW -> getString(R.string.device_hint_spp_slow)
+                TransportMode.WIFI_LAN -> getString(R.string.device_hint_wifi_lan)
+                TransportMode.CXR -> deviceText.text
+            }
+            deviceText.setTextColor(ContextCompat.getColor(this, R.color.phosphor_text_mid))
+            return
+        }
+
         tvStatusDevices.text = "${devices.size} DEV"
 
         if (devices.isEmpty()) {
@@ -324,13 +469,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── Status bar ──
-
     private fun refreshStatusBar() {
         tvStatusBt.text = if (isBluetoothEnabled()) "BT: ON" else "BT: OFF"
+        if (currentMode != TransportMode.CXR) {
+            tvStatusDevices.text = if (currentMode == TransportMode.SPP_SLOW) "SPP" else "LAN"
+        }
     }
-
-    // ── Prerequisites ──
 
     private fun runWithPrerequisites(action: () -> Unit) {
         pendingAction = action
@@ -340,6 +484,7 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 enableBluetoothLauncher.launch(intent)
             }
+
             else -> consumePendingAction()
         }
     }
@@ -350,18 +495,16 @@ class MainActivity : AppCompatActivity() {
         action()
     }
 
-    private fun hasAllPermissions(): Boolean {
-        return requiredPermissions.all { permission ->
-            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
-        }
+    private fun hasAllPermissions(): Boolean = requiredPermissions.all(::hasPermission)
+
+    private fun hasPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun isBluetoothEnabled(): Boolean {
         val manager = getSystemService(BLUETOOTH_SERVICE) as? BluetoothManager ?: return false
         return manager.adapter?.isEnabled == true
     }
-
-    // ── Helpers ──
 
     private fun currentSelectedDevice(): BluetoothDevice? {
         if (discoveredDevices.isEmpty()) return null
@@ -375,7 +518,7 @@ class MainActivity : AppCompatActivity() {
             arrayOf(OpenableColumns.DISPLAY_NAME),
             null,
             null,
-            null
+            null,
         )
         cursor.use {
             if (it != null && it.moveToFirst()) {
