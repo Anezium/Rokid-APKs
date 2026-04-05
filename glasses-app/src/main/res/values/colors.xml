@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AR HUD color palette — optimized for Rokid monochrome-green display -->
+    <!-- Black = transparent on AR glasses, green = visible -->
+    <color name="hud_bg">#000000</color>
+    <color name="hud_primary">#39FF14</color>
+    <color name="hud_mid">#22C20A</color>
+    <color name="hud_dim">#1A8A1A</color>
+    <color name="hud_text_bright">#D4FFD4</color>
+    <color name="hud_text_mid">#4E8A4E</color>
+    <color name="hud_ghost">#1C351C</color>
+    <color name="hud_log">#3A6A3A</color>
+    <color name="hud_progress_track">#0D2A0D</color>
+</resources>

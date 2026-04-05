@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Rokid-APKs Companion</string>
-    <string name="status_idle">Ready. Open this app and it will connect to the paired phone.</string>
-    <string name="connect_button">Connect To Phone</string>
-    <string name="hint_text">The phone chooses the transfer mode. After the APK finishes downloading, the system installer will open on the glasses for confirmation.</string>
-    <string name="log_waiting">Waiting for companion connection...</string>
-    <string name="selected_phone_label">Selected phone</string>
-    <string name="previous_device_button">Previous</string>
-    <string name="next_device_button">Next</string>
-    <string name="no_paired_phone">No paired phone found</string>
+    <string name="app_name_short">ROKID-APKS</string>
+    <string name="status_idle">Ready</string>
+    <string name="no_paired_phone">No paired phone</string>
+    <string name="hint_swipe_tap">◀ SLIDE ▸\u2003\u2003TAP TO CONNECT</string>
+    <string name="hint_tap_connect">TAP TO CONNECT</string>
+    <string name="hint_tap_continue">TAP TO CONTINUE</string>
+    <string name="hint_no_device">Pair a phone in Bluetooth settings</string>
+    <string name="log_waiting">Waiting\u2026</string>
 </resources>
