@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Rokid-APKs"
 include(":app")
+include(":glasses-app")

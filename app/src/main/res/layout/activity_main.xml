@@ -60,6 +60,46 @@
         android:background="@drawable/bg_card"
         android:padding="14dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_transport"
+                android:textColor="@color/phosphor_dim"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"
+                android:background="@drawable/bg_badge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp" />
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/transportSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_spinner"
+            android:popupBackground="@color/phosphor_card_bg" />
+
+        <TextView
+            android:id="@+id/modeHintText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/transport_hint_cxr"
+            android:textColor="@color/phosphor_text_mid"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:lineSpacingExtra="2dp" />
+
         <!-- Serial row -->
         <LinearLayout
             android:layout_width="match_parent"
