@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         logText = findViewById(R.id.logText)
 
         bluetoothClient = GlassesBluetoothClient(this, scope)
+        PackageInstallHelper.cleanupExpiredPendingApk(this, ::appendLog)
         setupGestures()
         transitionTo(UiState.DEVICE_SELECT)
         appendLog("Companion ready.")

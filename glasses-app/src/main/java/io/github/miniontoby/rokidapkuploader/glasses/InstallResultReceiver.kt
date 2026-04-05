@@ -29,11 +29,13 @@ class InstallResultReceiver : BroadcastReceiver() {
             }
 
             PackageInstaller.STATUS_SUCCESS -> {
+                PackageInstallHelper.cleanupPendingApk(context)
                 publishStatus(context, status, "Install succeeded.")
                 Toast.makeText(context, "APK installed on the glasses.", Toast.LENGTH_LONG).show()
             }
 
             else -> {
+                PackageInstallHelper.cleanupPendingApk(context)
                 val message = if (statusMessage.isBlank()) {
                     "Install failed with status $status."
                 } else {
