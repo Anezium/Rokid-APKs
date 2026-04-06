@@ -110,6 +110,33 @@
         android:textColor="@color/hud_text_bright"
         android:textSize="14sp" />
 
+    <LinearLayout
+        android:id="@+id/actionContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/wifiActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_hud_action"
+            android:clickable="false"
+            android:duplicateParentState="false"
+            android:focusable="false"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minWidth="0dp"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="8dp"
+            android:text="@string/action_open_wifi"
+            android:textColor="@color/hud_action_text"
+            android:textSize="12sp" />
+    </LinearLayout>
+
     <!-- Push hints to bottom -->
     <Space
         android:layout_width="0dp"

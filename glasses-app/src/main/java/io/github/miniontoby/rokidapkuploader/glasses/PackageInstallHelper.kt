@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.glasses
+package com.rokidapks.glasses
 
 import android.app.Activity
 import android.app.PendingIntent
@@ -11,7 +11,7 @@ import android.provider.Settings
 import java.io.File
 
 object PackageInstallHelper {
-    const val ACTION_INSTALL_STATUS = "io.github.miniontoby.rokidapkuploader.glasses.INSTALL_STATUS"
+    const val ACTION_INSTALL_STATUS = "com.rokidapks.glasses.INSTALL_STATUS"
     const val EXTRA_STATUS = "status"
     const val EXTRA_MESSAGE = "message"
     private const val PENDING_APK_MAX_AGE_MS = 24L * 60L * 60L * 1000L

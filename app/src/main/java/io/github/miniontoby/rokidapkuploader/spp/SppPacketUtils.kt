@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.spp
+package com.rokidapks.spp
 
 import java.io.File
 import java.io.FileInputStream

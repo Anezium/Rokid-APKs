@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.glasses
+package com.rokidapks.glasses
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,7 +9,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
-import io.github.miniontoby.rokidapkuploader.glasses.spp.SppTransferConstants
+import com.rokidapks.glasses.spp.SppTransferConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader
+package com.rokidapks
 
 object RokidSdkAuth {
     const val bleServiceUuid = "00009100-0000-1000-8000-00805f9b34fb"

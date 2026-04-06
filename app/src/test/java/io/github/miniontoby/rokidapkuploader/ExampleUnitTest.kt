@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader
+package com.rokidapks
 
 import org.junit.Test
 

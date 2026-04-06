@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.spp
+package com.rokidapks.spp
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

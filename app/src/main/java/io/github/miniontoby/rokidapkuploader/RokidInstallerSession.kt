@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader
+package com.rokidapks
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter

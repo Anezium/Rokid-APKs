@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.glasses
+package com.rokidapks.glasses
 
 import android.content.Context
 

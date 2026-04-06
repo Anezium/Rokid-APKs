@@ -1,11 +1,19 @@
 <resources>
-    <string name="app_name">Rokid-APKs Companion</string>
-    <string name="app_name_short">ROKID-APKS</string>
+    <string name="app_name">Rokid APKs</string>
+    <string name="app_name_short">ROKID APKS</string>
     <string name="status_idle">Ready</string>
+    <string name="status_opening_wifi">Opening Wi-Fi settings...</string>
+    <string name="status_wifi_unavailable">Unable to open Wi-Fi settings</string>
     <string name="no_paired_phone">No paired phone</string>
-    <string name="hint_swipe_tap">◀ SLIDE ▸\u2003\u2003TAP TO CONNECT</string>
+    <string name="action_open_wifi">[ OPEN WIFI ]</string>
+    <string name="hint_swipe_tap">SLIDE LEFT OR RIGHT   TAP TO CONNECT</string>
     <string name="hint_tap_connect">TAP TO CONNECT</string>
     <string name="hint_tap_continue">TAP TO CONTINUE</string>
     <string name="hint_no_device">Pair a phone in Bluetooth settings</string>
-    <string name="log_waiting">Waiting\u2026</string>
+    <string name="hint_swipe_connect_with_wifi">TAP TO CONNECT</string>
+    <string name="hint_connect_with_wifi">TAP TO CONNECT</string>
+    <string name="hint_no_device_with_wifi">NO PHONE PAIRED   SLIDE RIGHT FOR WIFI</string>
+    <string name="hint_wifi_action">TAP OPEN WIFI</string>
+    <string name="log_opening_wifi">Opening Wi-Fi settings</string>
+    <string name="log_waiting">Waiting...</string>
 </resources>

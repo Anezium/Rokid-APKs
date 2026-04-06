@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.spp
+package com.rokidapks.spp
 
 import android.bluetooth.BluetoothSocket
 import android.util.Log

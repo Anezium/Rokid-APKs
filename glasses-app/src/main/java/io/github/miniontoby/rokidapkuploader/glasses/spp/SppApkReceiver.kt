@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader.glasses.spp
+package com.rokidapks.glasses.spp
 
 import android.bluetooth.BluetoothSocket
 import android.util.Log

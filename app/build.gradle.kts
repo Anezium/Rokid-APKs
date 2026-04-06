@@ -19,17 +19,17 @@ fun escapeBuildConfigString(value: String): String {
 }
 
 android {
-    namespace = "io.github.miniontoby.rokidapkuploader"
+    namespace = "com.rokidapks"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "io.github.miniontoby.rokidapkuploader"
+        applicationId = "com.rokidapks"
         minSdk = 28
         targetSdk = 36
-        versionCode = 103
-        versionName = "1.1.0"
+        versionCode = 104
+        versionName = "1.1.1"
 
         buildConfigField(
             "String",

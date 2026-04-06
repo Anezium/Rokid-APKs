@@ -4,17 +4,17 @@ plugins {
 }
 
 android {
-    namespace = "io.github.miniontoby.rokidapkuploader.glasses"
+    namespace = "com.rokidapks.glasses"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "io.github.miniontoby.rokidapkuploader.glasses"
+        applicationId = "com.rokidapks.glasses"
         minSdk = 28
         targetSdk = 36
-        versionCode = 103
-        versionName = "1.1.0"
+        versionCode = 104
+        versionName = "1.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

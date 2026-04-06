@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@color/phosphor_bg">
 
-    <!-- ── HEADER ── -->
+    <!-- â”€â”€ HEADER â”€â”€ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
             android:letterSpacing="0.12" />
     </LinearLayout>
 
-    <!-- ── CONFIG CARD ── -->
+    <!-- â”€â”€ CONFIG CARD â”€â”€ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -281,7 +281,7 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <!-- ── MISSION DIVIDER ── -->
+    <!-- â”€â”€ MISSION DIVIDER â”€â”€ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -300,7 +300,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="◈ MISSION ◈"
+            android:text="â—ˆ MISSION â—ˆ"
             android:textColor="@color/phosphor_divider"
             android:textSize="9sp"
             android:fontFamily="monospace"
@@ -315,7 +315,7 @@
             android:background="@color/phosphor_divider" />
     </LinearLayout>
 
-    <!-- ── PHASE STRIP ── -->
+    <!-- â”€â”€ PHASE STRIP â”€â”€ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -331,7 +331,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="○ BLE"
+            android:text="&#9675; BLE"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"
@@ -342,7 +342,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="○ AUTH"
+            android:text="&#9675; AUTH"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"
@@ -353,7 +353,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="○ P2P"
+            android:text="&#9675; P2P"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"
@@ -364,7 +364,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="○ UP"
+            android:text="&#9675; UP"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"
@@ -375,14 +375,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="○ OK"
+            android:text="&#9675; OK"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"
             android:gravity="center" />
     </LinearLayout>
 
-    <!-- ── TERMINAL LOG ── -->
+    <!-- â”€â”€ TERMINAL LOG â”€â”€ -->
     <ScrollView
         android:id="@+id/logScrollView"
         android:layout_width="match_parent"
@@ -407,7 +407,7 @@
             android:lineSpacingExtra="4dp" />
     </ScrollView>
 
-    <!-- ── SEPARATOR ── -->
+    <!-- â”€â”€ SEPARATOR â”€â”€ -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -416,7 +416,7 @@
         android:layout_marginTop="10dp"
         android:background="@color/phosphor_divider" />
 
-    <!-- ── UPLOAD BUTTON ── -->
+    <!-- â”€â”€ UPLOAD BUTTON â”€â”€ -->
     <Button
         android:id="@+id/uploadButton"
         android:layout_width="match_parent"
@@ -437,7 +437,7 @@
         android:stateListAnimator="@null"
         android:textAllCaps="false" />
 
-    <!-- ── STATUS BAR ── -->
+    <!-- â”€â”€ STATUS BAR â”€â”€ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -460,7 +460,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" │ "
+            android:text=" â”‚ "
             android:textColor="@color/phosphor_separator"
             android:textSize="9sp"
             android:fontFamily="monospace" />
@@ -477,7 +477,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" │ "
+            android:text=" â”‚ "
             android:textColor="@color/phosphor_separator"
             android:textSize="9sp"
             android:fontFamily="monospace" />

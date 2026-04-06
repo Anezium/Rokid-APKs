@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader
+package com.rokidapks
 
 import android.Manifest
 import android.animation.ObjectAnimator
@@ -29,6 +29,12 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val PHASE_DONE = "\u25CF"
+        private const val PHASE_CURRENT = "\u25D0"
+        private const val PHASE_PENDING = "\u25CB"
+    }
+
     private enum class TransportMode {
         CXR,
         SPP_SLOW,
@@ -345,19 +351,19 @@ class MainActivity : AppCompatActivity() {
             val label = phaseLabels[i]
             when {
                 i < index -> {
-                    phaseViews[i].text = "● $label"
+                    phaseViews[i].text = "$PHASE_DONE $label"
                     phaseViews[i].setTextColor(primaryColor)
                     phaseViews[i].alpha = 1f
                 }
 
                 i == index -> {
-                    phaseViews[i].text = "◐ $label"
+                    phaseViews[i].text = "$PHASE_CURRENT $label"
                     phaseViews[i].setTextColor(midColor)
                     phaseViews[i].alpha = 1f
                 }
 
                 else -> {
-                    phaseViews[i].text = "○ $label"
+                    phaseViews[i].text = "$PHASE_PENDING $label"
                     phaseViews[i].setTextColor(ghostColor)
                     phaseViews[i].alpha = 1f
                 }
@@ -369,7 +375,7 @@ class MainActivity : AppCompatActivity() {
         currentPhase = -1
         val ghostColor = ContextCompat.getColor(this, R.color.phosphor_text_ghost)
         for (i in phaseViews.indices) {
-            phaseViews[i].text = "○ ${phaseLabels[i]}"
+            phaseViews[i].text = "$PHASE_PENDING ${phaseLabels[i]}"
             phaseViews[i].setTextColor(ghostColor)
         }
     }
@@ -399,7 +405,7 @@ class MainActivity : AppCompatActivity() {
             if (currentPhase == 4) {
                 val primaryColor = ContextCompat.getColor(this, R.color.phosphor_primary)
                 for (i in phaseViews.indices) {
-                    phaseViews[i].text = "● ${phaseLabels[i]}"
+                    phaseViews[i].text = "$PHASE_DONE ${phaseLabels[i]}"
                     phaseViews[i].setTextColor(primaryColor)
                 }
             } else {

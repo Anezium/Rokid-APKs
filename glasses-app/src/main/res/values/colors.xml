@@ -11,4 +11,5 @@
     <color name="hud_ghost">#1C351C</color>
     <color name="hud_log">#3A6A3A</color>
     <color name="hud_progress_track">#0D2A0D</color>
+    <color name="hud_action_fill">#2239FF14</color>
 </resources>

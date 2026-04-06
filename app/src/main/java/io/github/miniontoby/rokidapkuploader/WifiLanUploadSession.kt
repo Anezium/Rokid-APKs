@@ -1,4 +1,4 @@
-package io.github.miniontoby.rokidapkuploader
+package com.rokidapks
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
@@ -9,12 +9,12 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.appcompat.app.AppCompatActivity
-import io.github.miniontoby.rokidapkuploader.spp.CompanionTransferOffer
-import io.github.miniontoby.rokidapkuploader.spp.PhoneApkSocketServer
-import io.github.miniontoby.rokidapkuploader.spp.SppControlChannel
-import io.github.miniontoby.rokidapkuploader.spp.SppPacketUtils
-import io.github.miniontoby.rokidapkuploader.spp.SppTransferConstants
-import io.github.miniontoby.rokidapkuploader.spp.TransferStatistics
+import com.rokidapks.spp.CompanionTransferOffer
+import com.rokidapks.spp.PhoneApkSocketServer
+import com.rokidapks.spp.SppControlChannel
+import com.rokidapks.spp.SppPacketUtils
+import com.rokidapks.spp.SppTransferConstants
+import com.rokidapks.spp.TransferStatistics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
