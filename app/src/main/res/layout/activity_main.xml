@@ -353,7 +353,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="&#9675; P2P"
+            android:text="&#9675; WIFI"
             android:textColor="@color/phosphor_text_ghost"
             android:textSize="10sp"
             android:fontFamily="monospace"

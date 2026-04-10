@@ -28,7 +28,7 @@
     <string name="transport_mode_cxr">CXR / OFFICIAL</string>
     <string name="transport_mode_spp_slow">SPP / SLOW</string>
     <string name="transport_mode_wifi_lan">WIFI LAN / FAST</string>
-    <string name="transport_hint_cxr">Use the official Rokid BLE and Wi-Fi Direct upload flow. No companion app is needed on the glasses.</string>
+    <string name="transport_hint_cxr">Use the official Rokid BLE plus glasses hotspot upload flow. No companion app is needed on the glasses.</string>
     <string name="transport_hint_spp_slow">Requires the glasses companion app. Send the APK entirely over Bluetooth SPP. Slow, but works without Wi-Fi.</string>
     <string name="transport_hint_wifi_lan">Requires the glasses companion app. Use Bluetooth for control, then send the APK over the current Wi-Fi or hotspot network. No fallback is attempted.</string>
     <string name="device_hint_spp_slow">No BLE scan in SPP mode. Open the companion on the glasses and connect to this phone.</string>
@@ -36,7 +36,7 @@
     <string name="log_waiting">&gt; Waiting for command...</string>
     <string name="phase_ble">BLE</string>
     <string name="phase_auth">AUTH</string>
-    <string name="phase_p2p">P2P</string>
+    <string name="phase_p2p">WIFI</string>
     <string name="phase_upload">UP</string>
     <string name="phase_install">OK</string>
     <string name="divider_mission">MISSION</string>

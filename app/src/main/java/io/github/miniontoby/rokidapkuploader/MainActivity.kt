@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                 serialInput.alpha = 1f
                 serialInput.hint = getString(R.string.hint_serial)
                 scanDevicesButton.visibility = View.VISIBLE
-                phaseLabels = listOf("BLE", "AUTH", "P2P", "UP", "OK")
+                phaseLabels = listOf("BLE", "AUTH", "WIFI", "UP", "OK")
                 updateDevices(discoveredDevices)
             }
 
@@ -331,7 +331,7 @@ class MainActivity : AppCompatActivity() {
         val phase = when {
             lower.contains("install succeeded") || lower.contains("install success") || lower.contains("complete") -> 4
             lower.contains("install prompt") || lower.contains("installer") || lower.contains("watch the glasses") || lower.contains("launching installer") -> 3
-            lower.contains("sending") || lower.contains("upload") || lower.contains("receiving apk") || lower.contains("transfer") || lower.contains("wi-fi lan is ready") -> 2
+            lower.contains("sending") || lower.contains("upload") || lower.contains("receiving apk") || lower.contains("transfer") || lower.contains("wi-fi lan is ready") || lower.contains("hotspot ready") || lower.contains("hotspot connected") || (lower.contains("joining") && lower.contains("hotspot")) -> 2
             lower.contains("connected") || lower.contains("auth") || lower.contains("link") -> 1
             lower.contains("scan") || lower.contains("ble") || lower.contains("listen") || lower.contains("waiting") || lower.contains("preparing") -> 0
             else -> return

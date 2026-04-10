@@ -10,7 +10,6 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.net.Uri
-import android.net.wifi.p2p.WifiP2pManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -18,21 +17,18 @@ import android.os.ParcelUuid
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.rokid.cxr.Caps
 import com.rokid.cxr.client.controllers.CxrController
 import com.rokid.cxr.client.extend.CxrApi
 import com.rokid.cxr.client.extend.callbacks.ApkStatusCallback
 import com.rokid.cxr.client.extend.callbacks.BluetoothClientsInfoCallback
 import com.rokid.cxr.client.extend.callbacks.BluetoothStatusCallback
 import com.rokid.cxr.client.extend.callbacks.GlassInfoResultCallback
-import com.rokid.cxr.client.extend.callbacks.WifiP2PStatusCallback
+import com.rokid.cxr.client.extend.callbacks.WifiHotStatusCallback
 import com.rokid.cxr.client.utils.ValueUtil
 import java.io.File
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import org.json.JSONArray
-import org.json.JSONObject
 
 class RokidInstallerSession(
     private val activity: AppCompatActivity,
@@ -61,20 +57,22 @@ class RokidInstallerSession(
     private val discoveredDevices = linkedMapOf<String, BluetoothDevice>()
 
     private var activeUpload = false
-    private var p2pConnector: RokidP2pConnector? = null
+    private var hotspotConnector: RokidHotspotConnector? = null
     private var installTimeout: Runnable? = null
     private var bluetoothConnectTimeout: Runnable? = null
     private var bluetoothControlProbeTimeout: Runnable? = null
-    private var wifiPeerTimeout: Runnable? = null
+    private var wifiHotspotTimeout: Runnable? = null
     private var pendingAuth: BluetoothAuth? = null
     private var currentApkStatusCallback: ApkStatusCallback? = null
     private var pendingApkFile: File? = null
     private var reconnectStarted = false
     private var wifiBootstrapStarted = false
-    private var p2pConnectStarted = false
+    private var hotspotConnectStarted = false
     private var transferStarted = false
-    private var p2pTargetName: String? = null
-    private var p2pTargetMac: String? = null
+    private var hotspotSsid: String? = null
+    private var hotspotPassword: String? = null
+    private var hotspotIpAddress: String? = null
+    private var hotspotSecurityType: Int? = null
     private var pendingBluetoothActivationMac: String? = null
     private var directReconnectUsingCache = false
 
@@ -220,10 +218,12 @@ class RokidInstallerSession(
         pendingAuth = auth
         reconnectStarted = false
         wifiBootstrapStarted = false
-        p2pConnectStarted = false
+        hotspotConnectStarted = false
         transferStarted = false
-        p2pTargetName = null
-        p2pTargetMac = null
+        hotspotSsid = null
+        hotspotPassword = null
+        hotspotIpAddress = null
+        hotspotSecurityType = null
         pendingBluetoothActivationMac = null
         directReconnectUsingCache = false
         activeUpload = true
@@ -231,8 +231,8 @@ class RokidInstallerSession(
         stopScan()
         clearInstallTimeout()
         clearBluetoothConnectTimeout()
-        clearWifiPeerTimeout()
-        cleanupP2p()
+        clearWifiHotspotTimeout()
+        cleanupHotspot()
         currentApkStatusCallback = buildApkStatusCallback()
 
         val initStatus = if (serialNumber.isNullOrBlank()) {
@@ -264,21 +264,24 @@ class RokidInstallerSession(
         clearInstallTimeout()
         clearBluetoothConnectTimeout()
         clearBluetoothControlProbe()
-        clearWifiPeerTimeout()
+        clearWifiHotspotTimeout()
         stopScan()
-        cleanupP2p()
+        cleanupHotspot()
         deletePendingApkFile()
         pendingAuth = null
         currentApkStatusCallback = null
         reconnectStarted = false
         wifiBootstrapStarted = false
-        p2pConnectStarted = false
+        hotspotConnectStarted = false
         transferStarted = false
-        p2pTargetName = null
-        p2pTargetMac = null
+        hotspotSsid = null
+        hotspotPassword = null
+        hotspotIpAddress = null
+        hotspotSecurityType = null
         pendingBluetoothActivationMac = null
+        directReconnectUsingCache = false
         runCatching { CxrApi.getInstance().stopUploadApk() }
-        runCatching { CxrApi.getInstance().deinitWifiP2P() }
+        runCatching { CxrApi.getInstance().deinitWifiHot() }
         runCatching { CxrApi.getInstance().deinitBluetooth() }
     }
 
@@ -397,85 +400,88 @@ class RokidInstallerSession(
         }
         directReconnectUsingCache = false
         wifiBootstrapStarted = true
-        postStatus("Bluetooth connected. Preparing Wi-Fi Direct...")
-        bootstrapWifiDirect()
+        postStatus("Bluetooth connected. Preparing the Rokid hotspot...")
+        bootstrapWifiHotspot()
     }
 
-    private fun bootstrapWifiDirect() {
-        configurePhoneModelForP2p()
-        cleanupP2p()
-        cleanupWifiP2pState()
-        runCatching { CxrApi.getInstance().deinitWifiP2P() }
-        postStatus("Resetting Wi-Fi Direct state...")
+    private fun bootstrapWifiHotspot() {
+        cleanupHotspot()
+        clearWifiHotspotTimeout()
+        runCatching { CxrApi.getInstance().deinitWifiHot() }
+        postStatus("Resetting the Rokid hotspot state...")
         mainHandler.postDelayed({
             if (!activeUpload) {
                 return@postDelayed
             }
-            startWifiPeerDiscovery()
+            requestWifiHotspot()
         }, wifiCleanupDelayMs)
     }
 
-    private fun startWifiPeerDiscovery() {
-        postStatus("Waiting for Rokid Wi-Fi Direct target...")
-        scheduleWifiPeerTimeout()
+    private fun requestWifiHotspot() {
+        postStatus("Requesting Rokid hotspot details...")
+        scheduleWifiHotspotTimeout()
 
-        val status = CxrApi.getInstance().initWifiP2P2(false, object : WifiP2PStatusCallback {
-            override fun onConnected() = Unit
-
-            override fun onDisconnected() = Unit
-
-            override fun onFailed(errorCode: ValueUtil.CxrWifiErrorCode?) {
-                fail("Wi-Fi Direct discovery failed: $errorCode")
-            }
-
-            override fun onP2pDeviceAvailable(
-                name: String?,
-                macAddress: String?,
-                deviceType: String?,
+        val status = CxrApi.getInstance().initWifiHot(object : WifiHotStatusCallback {
+            override fun onWifiHotAvailable(
+                ssid: String?,
+                password: String?,
+                ip: String?,
+                securityType: Int,
             ) {
                 if (!activeUpload) {
                     return
                 }
-                p2pTargetName = name
-                p2pTargetMac = macAddress
-                clearWifiPeerTimeout()
-                postStatus(
-                    "Rokid Wi-Fi Direct target found. Connecting... name=${name ?: "?"}, mac=${macAddress ?: "?"}",
-                )
-                connectManualWifiP2p()
+
+                val resolvedSsid = ssid?.trim().orEmpty()
+                val resolvedIp = ip?.trim().orEmpty()
+                if (resolvedSsid.isBlank() || resolvedIp.isBlank()) {
+                    fail("The glasses did not return valid hotspot details.")
+                    return
+                }
+
+                hotspotSsid = resolvedSsid
+                hotspotPassword = password?.trim().orEmpty()
+                hotspotIpAddress = resolvedIp
+                hotspotSecurityType = securityType
+                clearWifiHotspotTimeout()
+                postStatus("Rokid hotspot ready. Joining $resolvedSsid...")
+                connectHotspot()
             }
         })
 
         when (status) {
             ValueUtil.CxrStatus.REQUEST_FAILED ->
-                fail("The glasses rejected the Wi-Fi Direct start request.")
+                fail("The glasses rejected the hotspot start request.")
             ValueUtil.CxrStatus.REQUEST_WAITING ->
                 fail("The glasses are busy. Retry in a few seconds.")
             else -> Unit
         }
     }
 
-    private fun connectManualWifiP2p() {
-        if (!activeUpload || p2pConnectStarted || transferStarted) {
+    private fun connectHotspot() {
+        if (!activeUpload || hotspotConnectStarted || transferStarted) {
             return
         }
 
-        val targetName = p2pTargetName
-        val targetMac = p2pTargetMac
-        if (targetName.isNullOrBlank() && targetMac.isNullOrBlank()) {
-            fail("The Rokid Wi-Fi Direct target did not expose a usable name or MAC address.")
+        val ssid = hotspotSsid
+        val ipAddress = hotspotIpAddress
+        val securityType = hotspotSecurityType
+        if (ssid.isNullOrBlank() || ipAddress.isNullOrBlank() || securityType == null) {
+            fail("The Rokid hotspot details are incomplete.")
             return
         }
 
-        p2pConnectStarted = true
-        cleanupP2p()
-        p2pConnector = RokidP2pConnector(
+        hotspotConnectStarted = true
+        cleanupHotspot()
+        hotspotConnector = RokidHotspotConnector(
             context = activity,
-            targetDeviceName = targetName,
-            targetDeviceMac = targetMac,
+            ssid = ssid,
+            password = hotspotPassword.orEmpty(),
+            ipAddress = ipAddress,
+            securityType = securityType,
             onStatus = ::postStatus,
             onConnected = ::startSdkUpload,
-            onFailure = { reason -> fail("Wi-Fi Direct failed: $reason") },
+            onFailure = { reason -> fail("Hotspot failed: $reason") },
         ).also { connector ->
             connector.start()
         }
@@ -508,8 +514,8 @@ class RokidInstallerSession(
         return object : ApkStatusCallback {
             override fun onUploadApkSucceed() {
                 postStatus("APK uploaded. Waiting for install callback...")
-                cleanupP2p()
-                runCatching { CxrApi.getInstance().deinitWifiP2P() }
+                cleanupHotspot()
+                runCatching { CxrApi.getInstance().deinitWifiHot() }
                 scheduleInstallTimeout()
             }
 
@@ -576,10 +582,10 @@ class RokidInstallerSession(
         }
     }
 
-    private fun scheduleWifiPeerTimeout() {
-        clearWifiPeerTimeout()
-        wifiPeerTimeout = Runnable {
-            fail("Timed out while waiting for the Rokid Wi-Fi Direct target.")
+    private fun scheduleWifiHotspotTimeout() {
+        clearWifiHotspotTimeout()
+        wifiHotspotTimeout = Runnable {
+            fail("Timed out while waiting for the Rokid hotspot details.")
         }.also { runnable ->
             mainHandler.postDelayed(runnable, 25_000L)
         }
@@ -600,30 +606,32 @@ class RokidInstallerSession(
         bluetoothControlProbeTimeout = null
     }
 
-    private fun clearWifiPeerTimeout() {
-        wifiPeerTimeout?.let(mainHandler::removeCallbacks)
-        wifiPeerTimeout = null
+    private fun clearWifiHotspotTimeout() {
+        wifiHotspotTimeout?.let(mainHandler::removeCallbacks)
+        wifiHotspotTimeout = null
     }
 
     private fun finishFlow() {
         activeUpload = false
-        cleanupP2p()
+        cleanupHotspot()
         clearInstallTimeout()
         clearBluetoothConnectTimeout()
         clearBluetoothControlProbe()
-        clearWifiPeerTimeout()
+        clearWifiHotspotTimeout()
         deletePendingApkFile()
         pendingAuth = null
         currentApkStatusCallback = null
         reconnectStarted = false
         wifiBootstrapStarted = false
-        p2pConnectStarted = false
+        hotspotConnectStarted = false
         transferStarted = false
-        p2pTargetName = null
-        p2pTargetMac = null
+        hotspotSsid = null
+        hotspotPassword = null
+        hotspotIpAddress = null
+        hotspotSecurityType = null
         pendingBluetoothActivationMac = null
         directReconnectUsingCache = false
-        runCatching { CxrApi.getInstance().deinitWifiP2P() }
+        runCatching { CxrApi.getInstance().deinitWifiHot() }
         runCatching { CxrApi.getInstance().deinitBluetooth() }
         onBusyChanged(false)
     }
@@ -635,24 +643,26 @@ class RokidInstallerSession(
             return
         }
         activeUpload = false
-        cleanupP2p()
+        cleanupHotspot()
         clearInstallTimeout()
         clearBluetoothConnectTimeout()
         clearBluetoothControlProbe()
-        clearWifiPeerTimeout()
+        clearWifiHotspotTimeout()
         deletePendingApkFile()
         pendingAuth = null
         currentApkStatusCallback = null
         reconnectStarted = false
         wifiBootstrapStarted = false
-        p2pConnectStarted = false
+        hotspotConnectStarted = false
         transferStarted = false
-        p2pTargetName = null
-        p2pTargetMac = null
+        hotspotSsid = null
+        hotspotPassword = null
+        hotspotIpAddress = null
+        hotspotSecurityType = null
         pendingBluetoothActivationMac = null
         directReconnectUsingCache = false
         runCatching { CxrApi.getInstance().stopUploadApk() }
-        runCatching { CxrApi.getInstance().deinitWifiP2P() }
+        runCatching { CxrApi.getInstance().deinitWifiHot() }
         runCatching { CxrApi.getInstance().deinitBluetooth() }
         onBusyChanged(false)
         postStatus(finalMessage)
@@ -666,9 +676,9 @@ class RokidInstallerSession(
         return "$message Saved Bluetooth endpoint cleared; scan the glasses once to refresh it."
     }
 
-    private fun cleanupP2p() {
-        p2pConnector?.cleanup()
-        p2pConnector = null
+    private fun cleanupHotspot() {
+        hotspotConnector?.cleanup()
+        hotspotConnector = null
     }
 
     private fun forceSdkBluetoothConnectedState(): Boolean {
@@ -714,7 +724,7 @@ class RokidInstallerSession(
                     return
                 }
                 if (status == ValueUtil.CxrStatus.RESPONSE_SUCCEED) {
-                    postStatus("The Rokid control channel is responding. Continuing with Wi-Fi Direct...")
+                    postStatus("The Rokid control channel is responding. Continuing with hotspot setup...")
                     handleBluetoothReady()
                     return
                 }
@@ -727,45 +737,6 @@ class RokidInstallerSession(
         if (requestStatus != ValueUtil.CxrStatus.REQUEST_SUCCEED) {
             postStatus("Bluetooth control probe could not start ($requestStatus). Retrying shortly...")
             scheduleBluetoothControlProbe(delayMs = 3_000L)
-        }
-    }
-
-    private fun cleanupWifiP2pState() {
-        val manager =
-            activity.applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as? WifiP2pManager
-                ?: return
-        val channel = manager.initialize(activity.applicationContext, Looper.getMainLooper(), null)
-            ?: return
-
-        runCatching { manager.stopPeerDiscovery(channel, null) }
-        runCatching { manager.cancelConnect(channel, null) }
-        runCatching { manager.removeGroup(channel, null) }
-        runCatching {
-            val deletePersistentGroup = WifiP2pManager::class.java.getMethod(
-                "deletePersistentGroup",
-                WifiP2pManager.Channel::class.java,
-                Int::class.javaPrimitiveType,
-                WifiP2pManager.ActionListener::class.java,
-            )
-            for (netId in 0..31) {
-                deletePersistentGroup.invoke(manager, channel, netId, null)
-            }
-        }
-    }
-
-    private fun configurePhoneModelForP2p() {
-        runCatching {
-            val jsonArray = JSONArray()
-            val jsonObject = JSONObject()
-            jsonObject.put("key", "settings_phone_model")
-            jsonObject.put("value", "zhuoyitong")
-            jsonArray.put(jsonObject)
-
-            val caps = Caps().apply {
-                write("Settings_Update")
-                write(jsonArray.toString())
-            }
-            CxrController.getInstance().request(66, "Settings", caps, null)
         }
     }
 
