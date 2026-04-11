@@ -30,7 +30,7 @@ This repo is no longer only an updated CXR uploader.
 
 Recent work added a full companion flow for Rokid glasses and split the phone app into three explicit user-selected modes:
 
-- `CXR / OFFICIAL` for the classic Rokid BLE + Wi-Fi Direct path
+- `CXR / OFFICIAL` for the official Rokid BLE + hotspot upload path
 - `SPP / SLOW` for a fully local Bluetooth-only companion flow
 - `WIFI LAN / FAST` for Bluetooth control plus APK transfer over the current Wi-Fi or hotspot network
 
@@ -44,7 +44,7 @@ The companion app on the glasses receives the APK, launches `PackageInstaller`, 
 
 ### 1. Official Rokid flow
 
-The phone app scans for Rokid glasses over BLE, opens the Rokid Bluetooth control channel, brings up Wi-Fi Direct, uploads the selected APK, and asks the glasses to install it.
+The phone app scans for Rokid glasses over BLE, opens the Rokid Bluetooth control channel, asks the glasses to expose their own Wi-Fi hotspot, joins that hotspot, uploads the selected APK, and asks the glasses to install it.
 
 This is the original Rokid-style path and does **not** require any companion app on the glasses.
 
@@ -65,7 +65,7 @@ No desktop helper. No cloud relay. Everything stays local between the phone and 
 
 | Mode | Needs glasses companion app | Network requirement | Notes |
 | --- | --- | --- | --- |
-| `CXR / OFFICIAL` | No | Rokid BLE + Wi-Fi Direct | Uses the official Rokid stack |
+| `CXR / OFFICIAL` | No | Rokid BLE + glasses hotspot | Uses the official Rokid stack |
 | `SPP / SLOW` | Yes | None beyond Bluetooth pairing | Slowest, but works fully offline |
 | `WIFI LAN / FAST` | Yes | Phone and glasses on the same Wi-Fi or hotspot | Fastest companion mode |
 
@@ -79,7 +79,7 @@ Important:
 
 ## Features
 
-- Modernized Rokid CXR upload flow for newer phones and newer Rokid samples
+- Modernized Rokid CXR upload flow using the glasses hotspot instead of the older Wi-Fi Direct path
 - Separate glasses companion app for local install workflows
 - Three explicit transfer modes with no automatic transport switching
 - Direct APK install confirmation on the glasses through `PackageInstaller`
@@ -151,8 +151,20 @@ Debug outputs:
 6. Put the Rokid glasses into their Bluetooth pairing flow.
 7. Tap `Select` and choose the APK you want to send.
 8. Tap `Scan` and pick the detected Rokid glasses.
-9. Tap `Upload APK` and accept the Bluetooth prompt if Android shows one.
-10. Wait for the app to move through BLE, auth, Wi-Fi Direct, upload, and install.
+9. Tap `Upload APK` and accept the Android Wi-Fi prompt when the phone asks to join the Rokid glasses hotspot.
+10. Wait for the app to move through BLE, auth, hotspot join, upload, and install.
+
+### Official CXR troubleshooting
+
+If `CXR / OFFICIAL` fails before upload starts:
+
+1. Turn on `Bluetooth`, `Wi-Fi`, and `Location` on the phone.
+2. Disconnect the glasses from normal Android Bluetooth settings before starting the upload flow.
+3. Force close `Hi Rokid` and any other Rokid companion apps on the phone that may grab the Bluetooth connection first.
+4. Put the glasses back into the normal Rokid pairing / scan flow.
+5. Re-open `Rokid-APKs`, scan again, and retry the upload.
+
+Why this helps: the official CXR path needs its own Bluetooth control session before it can switch to the glasses hotspot. If Android or another Rokid app grabs the normal Bluetooth link first, CXR can fail before the Wi-Fi step begins.
 
 ### Companion modes
 
@@ -192,5 +204,5 @@ This fork updates the connection flow for the newer CXR-M SDK, adds a redesigned
 ## Notes
 
 - The repo ignores `local.properties`, `.lc` auth blobs, build outputs, and keystores so they do not end up in Git by accident.
-- The official CXR mode still depends on phone vendor Bluetooth and Wi-Fi Direct behavior, which can vary across devices.
+- The official CXR mode still depends on phone vendor Bluetooth behavior and on the glasses hotspot flow, which can vary across devices.
 - The companion flow has been tested on real Rokid glasses with both `SPP / SLOW` and `WIFI LAN / FAST`.

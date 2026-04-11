@@ -3,6 +3,7 @@ name: Android Debug Builds
 on:
   push:
     branches:
+      - dev
       - main
       - "release/**"
   workflow_dispatch:
