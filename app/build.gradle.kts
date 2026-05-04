@@ -28,8 +28,8 @@ android {
         applicationId = "com.rokidapks"
         minSdk = 28
         targetSdk = 36
-        versionCode = 104
-        versionName = "1.1.1"
+        versionCode = 120
+        versionName = "1.2.0"
 
         buildConfigField(
             "String",
@@ -75,4 +75,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.rokid.cxr:client-m:1.2.1")
+    implementation(files("libs/client-l-1.0.1-stripped.aar"))
 }

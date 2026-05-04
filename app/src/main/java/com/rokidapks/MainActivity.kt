@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     private enum class TransportMode {
         CXR,
+        CXR_L_HI_ROKID,
         SPP_SLOW,
         WIFI_LAN,
     }
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvStatusBt: TextView
     private lateinit var tvStatusDevices: TextView
     private lateinit var rokidSession: RokidInstallerSession
+    private lateinit var cxrLHiRokidSession: CxrLHiRokidSession
     private lateinit var sppSlowSession: SppSlowUploadSession
     private lateinit var wifiLanSession: WifiLanUploadSession
 
@@ -159,6 +161,11 @@ class MainActivity : AppCompatActivity() {
             onDevicesChanged = ::updateDevices,
             onBusyChanged = ::setBusy,
         )
+        cxrLHiRokidSession = CxrLHiRokidSession(
+            activity = this,
+            onStatus = ::updateStatus,
+            onBusyChanged = ::setBusy,
+        )
         sppSlowSession = SppSlowUploadSession(
             activity = this,
             onStatus = ::updateStatus,
@@ -178,7 +185,10 @@ class MainActivity : AppCompatActivity() {
 
         scanDevicesButton.setOnClickListener {
             runWithPrerequisites {
-                rokidSession.startScan()
+                when (currentMode) {
+                    TransportMode.CXR_L_HI_ROKID -> cxrLHiRokidSession.requestAuthorization()
+                    else -> rokidSession.startScan()
+                }
             }
         }
 
@@ -198,6 +208,10 @@ class MainActivity : AppCompatActivity() {
 
                     TransportMode.WIFI_LAN -> {
                         wifiLanSession.sendApk(apkUri)
+                    }
+
+                    TransportMode.CXR_L_HI_ROKID -> {
+                        cxrLHiRokidSession.installApk(apkUri)
                     }
 
                     TransportMode.CXR -> {
@@ -232,12 +246,22 @@ class MainActivity : AppCompatActivity() {
         rokidSession.cleanup()
         sppSlowSession.cleanup()
         wifiLanSession.cleanup()
+        cxrLHiRokidSession.cleanup()
         super.onDestroy()
+    }
+
+    @Deprecated("CXR-L SDK still uses startActivityForResult for authorization.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CxrLHiRokidSession.AUTH_REQUEST_CODE) {
+            cxrLHiRokidSession.handleAuthorizationResult(resultCode, data)
+        }
     }
 
     private fun setupTransportSpinner() {
         val labels = listOf(
             getString(R.string.transport_mode_cxr),
+            getString(R.string.transport_mode_cxr_l_hi_rokid),
             getString(R.string.transport_mode_spp_slow),
             getString(R.string.transport_mode_wifi_lan),
         )
@@ -253,7 +277,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 currentMode = when (position) {
                     0 -> TransportMode.CXR
-                    1 -> TransportMode.SPP_SLOW
+                    1 -> TransportMode.CXR_L_HI_ROKID
+                    2 -> TransportMode.SPP_SLOW
                     else -> TransportMode.WIFI_LAN
                 }
                 refreshModeUi()
@@ -261,7 +286,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
-        transportSpinner.setSelection(2)
+        transportSpinner.setSelection(3)
     }
 
     private fun refreshModeUi() {
@@ -272,8 +297,24 @@ class MainActivity : AppCompatActivity() {
                 serialInput.alpha = 1f
                 serialInput.hint = getString(R.string.hint_serial)
                 scanDevicesButton.visibility = View.VISIBLE
+                scanDevicesButton.text = getString(R.string.scan)
                 phaseLabels = listOf("BLE", "AUTH", "P2P", "UP", "OK")
                 updateDevices(discoveredDevices)
+            }
+
+            TransportMode.CXR_L_HI_ROKID -> {
+                modeHintText.text = getString(R.string.transport_hint_cxr_l_hi_rokid)
+                serialInput.setText("")
+                serialInput.isEnabled = false
+                serialInput.alpha = 0.55f
+                serialInput.hint = getString(R.string.hint_serial_unused_hi_rokid)
+                scanDevicesButton.visibility = View.VISIBLE
+                scanDevicesButton.text = getString(R.string.authorize_hi_rokid)
+                deviceSpinner.visibility = View.GONE
+                deviceText.visibility = View.VISIBLE
+                deviceText.text = getString(R.string.device_hint_cxr_l_hi_rokid)
+                deviceText.setTextColor(ContextCompat.getColor(this, R.color.phosphor_text_mid))
+                phaseLabels = listOf("AUTH", "LINK", "BT", "INST", "OK")
             }
 
             TransportMode.SPP_SLOW -> {
@@ -283,6 +324,7 @@ class MainActivity : AppCompatActivity() {
                 serialInput.alpha = 0.55f
                 serialInput.hint = getString(R.string.hint_serial_unused_companion)
                 scanDevicesButton.visibility = View.GONE
+                scanDevicesButton.text = getString(R.string.scan)
                 deviceSpinner.visibility = View.GONE
                 deviceText.visibility = View.VISIBLE
                 deviceText.text = getString(R.string.device_hint_spp_slow)
@@ -297,6 +339,7 @@ class MainActivity : AppCompatActivity() {
                 serialInput.alpha = 0.55f
                 serialInput.hint = getString(R.string.hint_serial_unused_companion)
                 scanDevicesButton.visibility = View.GONE
+                scanDevicesButton.text = getString(R.string.scan)
                 deviceSpinner.visibility = View.GONE
                 deviceText.visibility = View.VISIBLE
                 deviceText.text = getString(R.string.device_hint_wifi_lan)
@@ -422,6 +465,7 @@ class MainActivity : AppCompatActivity() {
         }
         val buttonLabel = when (currentMode) {
             TransportMode.CXR -> getString(R.string.upload_apk)
+            TransportMode.CXR_L_HI_ROKID -> getString(R.string.install_cxr_l_hi_rokid)
             TransportMode.SPP_SLOW -> getString(R.string.send_apk_spp_slow)
             TransportMode.WIFI_LAN -> getString(R.string.send_apk_wifi_lan)
         }
@@ -434,6 +478,7 @@ class MainActivity : AppCompatActivity() {
         discoveredDevices = devices
         if (currentMode != TransportMode.CXR) {
             tvStatusDevices.text = when (currentMode) {
+                TransportMode.CXR_L_HI_ROKID -> "CXR-L"
                 TransportMode.SPP_SLOW -> "SPP"
                 TransportMode.WIFI_LAN -> "LAN"
                 TransportMode.CXR -> "${devices.size} DEV"
@@ -441,6 +486,7 @@ class MainActivity : AppCompatActivity() {
             deviceSpinner.visibility = View.GONE
             deviceText.visibility = View.VISIBLE
             deviceText.text = when (currentMode) {
+                TransportMode.CXR_L_HI_ROKID -> getString(R.string.device_hint_cxr_l_hi_rokid)
                 TransportMode.SPP_SLOW -> getString(R.string.device_hint_spp_slow)
                 TransportMode.WIFI_LAN -> getString(R.string.device_hint_wifi_lan)
                 TransportMode.CXR -> deviceText.text
@@ -478,7 +524,12 @@ class MainActivity : AppCompatActivity() {
     private fun refreshStatusBar() {
         tvStatusBt.text = if (isBluetoothEnabled()) "BT: ON" else "BT: OFF"
         if (currentMode != TransportMode.CXR) {
-            tvStatusDevices.text = if (currentMode == TransportMode.SPP_SLOW) "SPP" else "LAN"
+            tvStatusDevices.text = when (currentMode) {
+                TransportMode.CXR_L_HI_ROKID -> "CXR-L"
+                TransportMode.SPP_SLOW -> "SPP"
+                TransportMode.WIFI_LAN -> "LAN"
+                TransportMode.CXR -> tvStatusDevices.text.toString()
+            }
         }
     }
 
