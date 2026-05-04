@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  Install Android APKs on Rokid glasses from your phone with three local transfer modes:
-  official CXR, direct Bluetooth SPP, or Wi-Fi LAN with a glasses companion.
+  Install Android APKs on Rokid glasses from your phone with four explicit transfer modes:
+  official CXR-M, Hi Rokid CXR-L, Bluetooth SPP, or Wi-Fi LAN with a glasses companion.
 </p>
 
 ---
@@ -28,27 +28,34 @@
 
 This repo is no longer only an updated CXR uploader.
 
-Recent work added a full companion flow for Rokid glasses and split the phone app into three explicit user-selected modes:
+Recent work added a Hi Rokid CXR-L path and a full companion flow for Rokid glasses, then split the phone app into four explicit user-selected modes:
 
-- `CXR / OFFICIAL` for the classic Rokid BLE + Wi-Fi Direct path
+- `CXR-M / OFFICIAL` for the classic Rokid CXR-M BLE + Wi-Fi Direct path
+- `CXR-L / HI ROKID` for the global Hi Rokid authorization + CXR-L install path
 - `SPP / SLOW` for a fully local Bluetooth-only companion flow
 - `WIFI LAN / FAST` for Bluetooth control plus APK transfer over the current Wi-Fi or hotspot network
 
-The companion app on the glasses receives the APK, launches `PackageInstaller`, and lets the user confirm install directly on-device.
+The glasses companion app receives the APK for SPP/LAN modes, launches `PackageInstaller`, and lets the user confirm install directly on-device. CXR-L uses Hi Rokid as the bridge instead.
 
 ---
 
 ## How it works
 
-`Rokid-APKs` now supports two different families of install flow.
+`Rokid-APKs` now supports three different families of install flow.
 
-### 1. Official Rokid flow
+### 1. Official Rokid CXR-M flow
 
 The phone app scans for Rokid glasses over BLE, opens the Rokid Bluetooth control channel, brings up Wi-Fi Direct, uploads the selected APK, and asks the glasses to install it.
 
 This is the original Rokid-style path and does **not** require any companion app on the glasses.
 
-### 2. Companion flow
+### 2. Hi Rokid CXR-L flow
+
+The phone app asks the global Hi Rokid app for authorization, opens a CXR-L `CUSTOMAPP` session for the selected APK package, then asks Hi Rokid to upload and install the APK.
+
+This mode does **not** require the Rokid-APKs glasses companion app, but it does require Hi Rokid on the phone, Bluetooth-connected glasses, and phone Wi-Fi enabled so Hi Rokid can join the glasses hotspot.
+
+### 3. Companion flow
 
 The phone app talks to a dedicated glasses companion app over Bluetooth SPP. From there, the payload goes one of two ways:
 
@@ -65,26 +72,29 @@ No desktop helper. No cloud relay. Everything stays local between the phone and 
 
 | Mode | Needs glasses companion app | Network requirement | Notes |
 | --- | --- | --- | --- |
-| `CXR / OFFICIAL` | No | Rokid BLE + Wi-Fi Direct | Uses the official Rokid stack |
+| `CXR-M / OFFICIAL` | No | Rokid BLE + Wi-Fi Direct | Uses the official Rokid CXR-M stack |
+| `CXR-L / HI ROKID` | No | Hi Rokid + phone Wi-Fi enabled | Uses Hi Rokid authorization and CXR-L `CUSTOMAPP` install |
 | `SPP / SLOW` | Yes | None beyond Bluetooth pairing | Slowest, but works fully offline |
 | `WIFI LAN / FAST` | Yes | Phone and glasses on the same Wi-Fi or hotspot | Fastest companion mode |
 
 Important:
 
 - `SPP / SLOW` and `WIFI LAN / FAST` require the phone and glasses to already be paired in Android Bluetooth settings.
-- `CXR / OFFICIAL` does not use the companion app on the glasses.
+- `CXR-M / OFFICIAL` does not use the companion app on the glasses.
+- `CXR-L / HI ROKID` does not use the Rokid-APKs glasses companion app, but it does require the global Hi Rokid app.
 - `WIFI LAN / FAST` does not auto-fallback to another mode. If LAN is not available, switch modes manually in the phone app.
 
 ---
 
 ## Features
 
-- Modernized Rokid CXR upload flow for newer phones and newer Rokid samples
+- Modernized Rokid CXR-M upload flow for newer phones and newer Rokid samples
+- Hi Rokid CXR-L install flow for phones where the CXR-M Wi-Fi Direct path is unreliable
 - Separate glasses companion app for local install workflows
-- Three explicit transfer modes with no automatic transport switching
+- Four explicit transfer modes with no automatic transport switching
 - Direct APK install confirmation on the glasses through `PackageInstaller`
 - Phone UI with live phase/status feedback
-- Optional serial-number auth path for the official CXR mode
+- Optional serial-number auth path for the official CXR-M mode
 
 ---
 
@@ -99,9 +109,9 @@ glasses-app/    Android glasses companion app
 
 ## Private credentials
 
-Only the `CXR / OFFICIAL` mode depends on Rokid credentials and auth data.
+Only the `CXR-M / OFFICIAL` mode depends on Rokid CXR-M credentials and auth data.
 
-The companion modes do not need Rokid BLE auth blobs because they do not use the official Rokid upload channel.
+The CXR-L and companion modes do not need Rokid CXR-M BLE auth blobs because they do not use the official CXR-M upload channel.
 
 For the official mode:
 
@@ -141,11 +151,11 @@ Debug outputs:
 
 ## First run
 
-### Official CXR mode
+### Official CXR-M mode
 
 1. Install the phone app on your Android phone.
 2. Open `Rokid-APKs` on the phone.
-3. Select `CXR / OFFICIAL`.
+3. Select `CXR-M / OFFICIAL`.
 4. Grant the requested Bluetooth, nearby, and Wi-Fi permissions.
 5. Optionally enter the glasses serial number if you are using the serial auth path.
 6. Put the Rokid glasses into their Bluetooth pairing flow.
@@ -153,6 +163,18 @@ Debug outputs:
 8. Tap `Scan` and pick the detected Rokid glasses.
 9. Tap `Upload APK` and accept the Bluetooth prompt if Android shows one.
 10. Wait for the app to move through BLE, auth, Wi-Fi Direct, upload, and install.
+
+### Hi Rokid CXR-L mode
+
+1. Install the phone app on your Android phone.
+2. Make sure the global Hi Rokid app is installed and your glasses are connected to it.
+3. Turn on Bluetooth and Wi-Fi on the phone.
+4. Open `Rokid-APKs` on the phone.
+5. Select `CXR-L / HI ROKID`.
+6. Tap `AUTH` and approve the authorization screen in Hi Rokid.
+7. Tap `Select` and choose the APK you want to install.
+8. Tap `INSTALL CXR-L`.
+9. Wait for the install result.
 
 ### Companion modes
 
@@ -192,5 +214,6 @@ This fork updates the connection flow for the newer CXR-M SDK, adds a redesigned
 ## Notes
 
 - The repo ignores `local.properties`, `.lc` auth blobs, build outputs, and keystores so they do not end up in Git by accident.
-- The official CXR mode still depends on phone vendor Bluetooth and Wi-Fi Direct behavior, which can vary across devices.
+- The official CXR-M mode still depends on phone vendor Bluetooth and Wi-Fi Direct behavior, which can vary across devices.
+- The CXR-L mode depends on the global Hi Rokid app and requires phone Wi-Fi to be enabled during install.
 - The companion flow has been tested on real Rokid glasses with both `SPP / SLOW` and `WIFI LAN / FAST`.

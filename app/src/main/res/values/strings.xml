@@ -28,11 +28,11 @@
     <string name="unknown_device">Unknown device</string>
     <string name="bluetooth_pair_prompt">If Android shows a Bluetooth PIN prompt, accept it on the phone and the glasses.</string>
     <string name="bluetooth_connect_timeout">Bluetooth pairing timed out. Disconnect the glasses from Android Bluetooth settings, trigger Rokid pairing mode, then retry.</string>
-    <string name="transport_mode_cxr">CXR / OFFICIAL</string>
+    <string name="transport_mode_cxr">CXR-M / OFFICIAL</string>
     <string name="transport_mode_cxr_l_hi_rokid">CXR-L / HI ROKID</string>
     <string name="transport_mode_spp_slow">SPP / SLOW</string>
     <string name="transport_mode_wifi_lan">WIFI LAN / FAST</string>
-    <string name="transport_hint_cxr">Use the official Rokid BLE and Wi-Fi Direct upload flow. No companion app is needed on the glasses.</string>
+    <string name="transport_hint_cxr">Use the official Rokid CXR-M BLE and Wi-Fi Direct upload flow. No companion app is needed on the glasses.</string>
     <string name="transport_hint_cxr_l_hi_rokid">Use the global Hi Rokid app as the companion bridge. Authorize once, keep the glasses Bluetooth-connected to Hi Rokid, then install through CXR-L CUSTOMAPP.</string>
     <string name="transport_hint_spp_slow">Requires the glasses companion app. Send the APK entirely over Bluetooth SPP. Slow, but works without Wi-Fi.</string>
     <string name="transport_hint_wifi_lan">Requires the glasses companion app. Use Bluetooth for control, then send the APK over the current Wi-Fi or hotspot network. No fallback is attempted.</string>
