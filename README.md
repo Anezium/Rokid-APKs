@@ -217,3 +217,9 @@ This fork updates the connection flow for the newer CXR-M SDK, adds a redesigned
 - The official CXR-M mode still depends on phone vendor Bluetooth and Wi-Fi Direct behavior, which can vary across devices.
 - The CXR-L mode depends on the global Hi Rokid app and requires phone Wi-Fi to be enabled during install.
 - The companion flow has been tested on real Rokid glasses with both `SPP / SLOW` and `WIFI LAN / FAST`.
+
+---
+
+## License
+
+Rokid-APKs is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE).
