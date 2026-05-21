@@ -37,6 +37,7 @@ class CxrLHiRokidSession(
         private const val AUTH_ACTION = "com.rokid.sprite.aiapp.externalapp.AUTHORIZATION"
         private const val MEDIA_SERVICE_ACTION = "com.rokid.sprite.aiapp.externalapp.MEDIA_STREAM_SERVICE"
         private const val AUTH_TOKEN_EXTRA = "auth_token"
+        private const val AUTH_PACKAGE_EXTRA = "auth_package"
     }
 
     private var token: String? = null
@@ -234,6 +235,7 @@ class CxrLHiRokidSession(
             val intent = Intent(MEDIA_SERVICE_ACTION)
                 .setPackage(GLOBAL_AI_APP_PACKAGE)
                 .putExtra(AUTH_TOKEN_EXTRA, authToken)
+                .putExtra(AUTH_PACKAGE_EXTRA, activity.packageName)
             activity.applicationContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }.getOrElse { error ->
             onStatus("CXR-L: reflection bind failed: ${error.message ?: error.javaClass.simpleName}")
