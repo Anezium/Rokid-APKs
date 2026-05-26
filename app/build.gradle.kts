@@ -28,8 +28,8 @@ android {
         applicationId = "com.rokidapks"
         minSdk = 28
         targetSdk = 36
-        versionCode = 121
-        versionName = "1.2.1"
+        versionCode = 122
+        versionName = "1.2.2"
 
         buildConfigField(
             "String",

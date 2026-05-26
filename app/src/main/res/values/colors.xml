@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Phosphor Green design system (aligned with Rokid-Lyrics) -->
+    <color name="splash_bg">#07110F</color>
     <color name="phosphor_bg">#050A05</color>
     <color name="phosphor_primary">#39FF14</color>
     <color name="phosphor_mid">#22C20A</color>
