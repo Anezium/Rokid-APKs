@@ -15,6 +15,7 @@ import com.rokid.cxr.link.CXRLink
 import com.rokid.cxr.link.callbacks.ICXRLinkCbk
 import com.rokid.cxr.link.callbacks.IGlassAppCbk
 import com.rokid.cxr.link.utils.CxrDefs
+import com.rokid.cxr.link.utils.GlassInfo
 import com.rokid.sprite.aiapp.externalapp.auth.AuthResult
 import com.rokid.sprite.aiapp.externalapp.auth.AuthorizationHelper
 import java.io.File
@@ -69,7 +70,7 @@ class CxrLHiRokidSession(
     }
 
     fun handleAuthorizationResult(resultCode: Int, data: Intent?) {
-        val result = AuthorizationHelper.INSTANCE.parseAuthorizationResult(resultCode, data)
+        val result = AuthorizationHelper.parseAuthorizationResult(resultCode, data)
         when (result) {
             is AuthResult.AuthSuccess -> {
                 token = result.token
@@ -162,6 +163,12 @@ class CxrLHiRokidSession(
                 override fun onGlassAiAssistStop() {
                     activity.runOnUiThread { onStatus("CXR-L: Hi Rokid assistant stopped.") }
                 }
+
+                override fun onGlassDeviceInfo(info: GlassInfo) = Unit
+
+                override fun onGlassWearingStatus(wearing: Boolean) = Unit
+
+                override fun onGlassAiInterrupt(interrupted: Boolean) = Unit
             })
             cxrLink = newLink
             newLink
